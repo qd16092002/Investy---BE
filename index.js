@@ -3,6 +3,7 @@ import {
   authencationRouter,
   calendarRouter,
   documentsRouter,
+  newsRouter,
   otpRouter,
 } from "./routers/index.js";
 import "./loadEnvironment.js";
@@ -47,6 +48,8 @@ app.use("/", authencationRouter);
 app.use("/", documentsRouter);
 app.use("/", otpRouter);
 app.use("/", calendarRouter);
+app.use("/", newsRouter);
+
 
 app.get("/", (req, res) => {
   res.send("Hello, 123!");

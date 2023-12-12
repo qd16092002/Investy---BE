@@ -3,53 +3,80 @@ import bcrypt from "bcrypt";
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import bodyParser from "body-parser";
+
 const router = express.Router();
 
 router.use(express.json());
-
-// Tạo model User
-const User = mongoose.model("User", {
+const Schema = mongoose.Schema;
+const userSchema = new Schema({
   username: {
     type: String,
     unique: true,
+    required: true,
   },
   fullName: {
     type: String,
+    required: true,
   },
   password: {
     type: String,
+    required: true,
   },
   role: {
     type: String,
-    enum: ["TUTOR", "ADMIN", "STUDENT"],
-    default: "STUDENT",
+    enum: ["TUTOR", "ADMIN", "STUDENT", "INVESTOR", "STARTUP"],
+    default: "TUTOR",
+    required: true,
+  },
+  currentJob: {
+    type: String,
+    enum: ["CTO", "CEO", "CMO"],
+    default: "CEO",
   },
   email: {
     type: String,
     unique: true,
+    required: true,
   },
-  date_of_birth: {
+  dateOfBirth: {
     type: String,
-  },
-  gender: {
-    type: String,
-    enum: ["Nam", "Nữ", "other"],
   },
   phoneNumber: {
     type: String,
   },
-  cv_link: {
+  linkedInLink: {
     type: String,
   },
-  address: {
+  interestedField: {
     type: String,
   },
+  involvedProjects: {
+    type: String,
+  },
+  companyName: {
+    type: String,
+  },
+  team: { type: Schema.Types.ObjectId, ref: 'TeamMember' },
 });
+
+const User = mongoose.model('User', userSchema);
+const teamMemberSchema = new Schema({
+  user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  avatar: String,
+  fullNameUserTeam: String,
+  position: String,
+  bio: String,
+  facebookUrl: String,
+  linkedinUrl: String,
+  twitterUrl: String,
+});
+
+const TeamMember = mongoose.model('TeamMember', teamMemberSchema);
 
 // Đăng ký tài khoản
 router.post("/user/signup", async (req, res) => {
   try {
-    const { username, password, email, role } = req.body;
+    const { username, password, email, role, phoneNumber } = req.body;
 
     // Kiểm tra username đã được sử dụng chưa
     const user = await User.findOne({ username });
@@ -67,6 +94,7 @@ router.post("/user/signup", async (req, res) => {
       password: hash,
       email,
       role,
+      phoneNumber,
     });
 
     // Lưu vào cơ sở dữ liệu
@@ -239,4 +267,61 @@ router.post("/change-password", authenticateToken, (req, res) => {
     });
   });
 });
+
+router.post('/addTeamMemberByUsername', async (req, res) => {
+  const { username, avatar, fullNameUserTeam, position, bio, facebookUrl, linkedinUrl, twitterUrl } = req.body;
+
+  try {
+    // Tìm người dùng theo username
+    const user = await User.findOne({ username });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Tạo thành viên của đội
+    const newTeamMember = new TeamMember({
+      user: user._id,
+      avatar,
+      fullNameUserTeam,
+      position,
+      bio,
+      facebookUrl,
+      linkedinUrl,
+      twitterUrl,
+    });
+
+    await newTeamMember.save();
+
+    // Liên kết thành viên với người dùng
+    user.team = newTeamMember._id;
+    await user.save();
+
+    res.status(201).json({ message: 'Team member added successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+router.get('/teamMembers/:userId', async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    // Tìm người dùng
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Tìm toàn bộ thành viên của đội của người dùng
+    const teamMembers = await TeamMember.find({ user: user._id });
+
+    res.status(200).json({ teamMembers });
+  } catch (error) {
+    console.error('Error getting team members:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 export default router;

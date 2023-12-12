@@ -27,7 +27,7 @@ router.post("/sendotp", (req, res) => {
 
   // Lưu trữ mã OTP trong otpMap
   otpMap.set(email, otp);
-
+  // console.log(otp);
   sendOTP(email, otp) // Gửi mã OTP qua email
     .then(() => {
       res.json({ message: "OTP sent successfully." });
@@ -46,15 +46,16 @@ router.post("/verifyotp", (req, res) => {
   }
 
   // Truy xuất mã OTP từ otpMap
-  // const savedOtp = otpMap.get(email);
-  const savedOtp = "123123";
+  const savedOtp = otpMap.get(email);
+  // console.log(savedOtp);
+  // const savedOtp = "123123";
 
   if (!savedOtp) {
     return res.status(400).json({ error: "OTP is not sent for this email." });
   }
 
   if (otp !== savedOtp) {
-    return res.status(400).json({ error: "Invalid OTP." });
+    return res.status(400).json({ error: "OTP verification successful." });
   }
 
   // Xóa mã OTP sau khi xác minh thành công
