@@ -16,7 +16,7 @@ const userSchema = new Schema({
   },
   fullName: {
     type: String,
-    required: true,
+    // required: true,
   },
   password: {
     type: String,
@@ -24,8 +24,8 @@ const userSchema = new Schema({
   },
   role: {
     type: String,
-    enum: ["TUTOR", "ADMIN", "STUDENT", "INVESTOR", "STARTUP"],
-    default: "TUTOR",
+    enum: [ "ADMIN", "INVESTOR", "STARTUP"],
+    default: "INVESTOR",
     required: true,
   },
   currentJob: {
@@ -57,6 +57,12 @@ const userSchema = new Schema({
     type: String,
   },
   team: { type: Schema.Types.ObjectId, ref: 'TeamMember' },
+  address: {
+    type: String,
+  },
+  weburl: {
+    type: String
+  }
 });
 
 const User = mongoose.model('User', userSchema);
@@ -76,7 +82,19 @@ const TeamMember = mongoose.model('TeamMember', teamMemberSchema);
 // Đăng ký tài khoản
 router.post("/user/signup", async (req, res) => {
   try {
-    const { username, password, email, role, phoneNumber } = req.body;
+    const {
+      username,
+      password,
+      email,
+      role,
+      phoneNumber,
+      curentJob,
+      date_of_birth,
+      interestedField,
+      involvedProjects,
+      linkedlnLink,
+      companyName
+    } = req.body;
 
     // Kiểm tra username đã được sử dụng chưa
     const user = await User.findOne({ username });
@@ -95,6 +113,12 @@ router.post("/user/signup", async (req, res) => {
       email,
       role,
       phoneNumber,
+      date_of_birth,
+      curentJob,
+      interestedField,
+      involvedProjects,
+      linkedlnLink,
+      companyName
     });
 
     // Lưu vào cơ sở dữ liệu
@@ -324,4 +348,79 @@ router.get('/teamMembers/:userId', async (req, res) => {
   }
 });
 
+router.get('/user/roles', async (req, res) => {
+  try {
+    const rolesData = await User.aggregate([
+      {
+        $unwind: '$role',
+      },
+      {
+        $match: {
+          role: { $in: ['INVESTOR', 'STARTUP'] }, // Chỉ lấy vai trò 'Investor' và 'Startup'
+        },
+      },
+      {
+        $group: {
+          _id: '$role',
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          role: '$_id',
+          count: 1,
+        },
+      },
+    ]);
+
+    // Tính toán tổng số người dùng
+    const totalUsers = rolesData.reduce((acc, role) => acc + role.count, 0);
+
+    // Thêm phần trăm vào kết quả
+    const rolesWithPercentage = rolesData.map((role) => ({
+      ...role,
+      percentage: Math.round((role.count / totalUsers) * 100),
+    }));
+
+    res.status(200).json(rolesWithPercentage);
+  } catch (error) {
+    res.status(500).send('Error fetching roles data');
+  }
+});
+router.get('/admin/roles', async (req, res) => {
+  try {
+    const rolesData = await User.aggregate([
+      {
+        $unwind: '$role',
+      },
+      {
+        $group: {
+          _id: '$role',
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          role: '$_id',
+          count: 1,
+        },
+      },
+    ]);
+
+    // Tính toán tổng số người dùng
+    const totalUsers = rolesData.reduce((acc, role) => acc + role.count, 0);
+
+    // Thêm phần trăm vào kết quả
+    const rolesWithPercentage = rolesData.map((role) => ({
+      ...role,
+      percentage: Math.round((role.count / totalUsers) * 100),
+    }));
+
+    res.status(200).json(rolesWithPercentage);
+  } catch (error) {
+    res.status(500).send('Error fetching roles data');
+  }
+});
 export default router;
