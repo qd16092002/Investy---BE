@@ -122,4 +122,23 @@ function deleteSavedOTP(email) {
   otpMap.delete(email);
 }
 
+router.post('/send-email', async (req, res) => {
+  const { to, subject, text,user } = req.body;
+
+  // Define email options
+  const mailOptions = {
+    from: "webtutornow@gmail.com",
+    to,
+    subject,
+    text: `Mời bạn tham gia hệ thống Investy: http://localhost:3003/ qua lời mời của ${user}`,
+  };
+
+  // Send email
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      return res.status(500).send('Error sending email');
+    }
+    res.status(200).send('Email sent: ' + info.response);
+  });
+});
 export default router;

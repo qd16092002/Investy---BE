@@ -33,6 +33,10 @@ const userSchema = new Schema({
     enum: ["CTO", "CEO", "CMO"],
     default: "CEO",
   },
+  businessType: {
+    type: String,
+    enum: ["B2B", "B2C", "B2B2C","B2G","C2C"],
+  },
   email: {
     type: String,
     unique: true,
@@ -40,11 +44,48 @@ const userSchema = new Schema({
   },
   dateOfBirth: {
     type: String,
+    default: null,
+  },
+  urlWeb: {
+    type: String,
+    default: null,
+  },
+  title: {
+    type: String,
+  },
+  gender: {
+    type: String,
   },
   phoneNumber: {
     type: String,
   },
-  linkedInLink: {
+  urlLinkedin: {
+    type: String,
+  },
+  companystage: {
+    type: String,
+    default: null,
+  },
+  producttype: {
+    type: String,
+    default: null,
+  },
+  annualrevenue: {
+    type: String,
+    default: null,
+  },
+  mrr: {
+    type: String,
+    default: null,
+  },
+  mployeescount: {
+    type: String,
+    default: null,
+  },
+  urlFacebook: {
+    type: String,
+  },
+  urlTwitter: {
     type: String,
   },
   interestedField: {
@@ -89,7 +130,7 @@ router.post("/user/signup", async (req, res) => {
       role,
       phoneNumber,
       curentJob,
-      date_of_birth,
+      dateOfBirth,
       interestedField,
       involvedProjects,
       linkedlnLink,
@@ -113,7 +154,7 @@ router.post("/user/signup", async (req, res) => {
       email,
       role,
       phoneNumber,
-      date_of_birth,
+      dateOfBirth,
       curentJob,
       interestedField,
       involvedProjects,
