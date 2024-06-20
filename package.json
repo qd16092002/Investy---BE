@@ -1,0 +1,37 @@
+{
+  "name": "investy",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "this is my project",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js",
+    "debug": "node inspect index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Tran Quang Dao",
+  "license": "ISC",
+  "dependencies": {
+    "@google-cloud/translate": "^8.3.0",
+    "@sendgrid/mail": "^7.7.0",
+    "bcrypt": "^5.1.0",
+    "body-parser": "^1.20.2",
+    "cloudinary": "^1.41.0",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "dotenv": "^16.3.1",
+    "express": "^4.19.2",
+    "firebase-admin": "^12.1.1",
+    "html-pdf": "^3.0.1",
+    "jsonwebtoken": "^9.0.1",
+    "mongodb": "^5.7.0",
+    "mongoose": "^7.3.2",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.3",
+    "nodemon": "^3.0.1",
+    "passport": "^0.6.0",
+    "passport-jwt": "^4.0.1",
+    "sendgrid": "^5.2.3"
+  }
+}
