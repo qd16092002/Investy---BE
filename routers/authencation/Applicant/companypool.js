@@ -39,7 +39,7 @@ router.get("/recruitments/:applicantId", async (req, res) => {
         }
         // Lấy danh sách các RECRUITER đã được gán cho APPLICANT
         const recruiters = await User.find({ _id: { $in: applicant.selectedRecruiters } })
-            .select('fullName email avturl videointroduction introduction')
+            .select('companyName email avturl videointroduction introduction')
         res.status(200).json({ recruiters });
     } catch (error) {
         res.status(500).json({ message: error.message });
