@@ -311,8 +311,10 @@ router.get('/getcompanysearch', async (req, res) => {
   try {
     const { keyword, category, Location, worlscale } = req.query;
     let query = { role: 'RECRUITER' };
+    let orConditions = [];
+
     if (keyword) {
-      query['$or'] = [
+      orConditions.push(
         { 'fullName': { $regex: new RegExp(keyword, 'i') } },
         { 'phoneNumber': { $regex: new RegExp(keyword, 'i') } },
         { 'companyName': { $regex: new RegExp(keyword, 'i') } },
@@ -321,23 +323,23 @@ router.get('/getcompanysearch', async (req, res) => {
         { 'introduction.description': { $regex: new RegExp(keyword, 'i') } },
         { 'introduction.area': { $regex: new RegExp(keyword, 'i') } },
         { 'introduction.address': { $regex: new RegExp(keyword, 'i') } },
-      ];
+      );
     }
     if (category) {
-      query['$or'] = [
-        { 'introduction.area': category },
-      ];
+      orConditions.push({ 'introduction.area': category });
     }
     if (worlscale) {
-      query['$or'] = [
-        { 'introduction.employees': worlscale },
-      ];
+      orConditions.push({ 'introduction.employees': worlscale });
     }
     if (Location) {
-      query['$or'] = [
-        { 'introduction.address': Location },
-        { 'location': Location },
-      ];
+      orConditions.push(
+        { 'introduction.address': { $regex: new RegExp(Location, 'i') } },
+        { 'location': { $regex: new RegExp(Location, 'i') } },
+      );
+    }
+
+    if (orConditions.length > 0) {
+      query['$or'] = orConditions;
     }
 
     const users = await User.find(query);
@@ -346,6 +348,8 @@ router.get('/getcompanysearch', async (req, res) => {
     res.status(500).send('Server Error');
   }
 });
+
+
 router.get('/getallcompanydashboard', async (req, res) => {
   try {
     let query = { role: 'RECRUITER' };
